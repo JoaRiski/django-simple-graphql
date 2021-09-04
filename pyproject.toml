@@ -10,6 +10,7 @@ python = "^3.8"
 graphene-django = "^2.15.0"
 
 [tool.poetry.dev-dependencies]
+mypy = "^0.910"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
