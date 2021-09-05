@@ -66,7 +66,7 @@ def register_graphql_model(
 #       See https://github.com/python/typing/issues/213
 # TODO: Unpack model register args
 def graphql_model(
-    *, config: Optional[ModelConfig] = None
+    config: Optional[ModelConfig] = None,
 ) -> Callable[[ModelClass], ModelClass]:
     def _model_wrapper(model_cls: ModelClass) -> ModelClass:
 

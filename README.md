@@ -1,5 +1,9 @@
 # django-simple-graphql
 
+A stupid simple GraphQL setup for Django
+
+**This project is still a WIP and will receive breaking changes**
+
 ## TODO
 
 - Support mutations
@@ -32,9 +36,15 @@
 - Don't be as tightly coupled with graphene
   - e.g. support to https://github.com/strawberry-graphql/strawberry would be nice
 - Automatic CRUD operations
+- Support more complex ordering options (as well as explicit naming of ordering)
+- Run tests for code included in documentation
+- Support for permissions
+- Query cost analysis / rate limiting
+- Consider supporting an alternative approach where registration decorator
+  could be applied to a GraphQL config object instead of the model class
 
 
-## Features
+## Features (already supported)
 
 TODO: Improve the documentation
 
@@ -42,6 +52,216 @@ TODO: Improve the documentation
   - By default, includes a `getModelName` and `listModelName` queries
   - Configure by adding a `GraphQL` meta class to the model class
   - Alternatively supply a configuration class to the decorator
+- Supported configuration options
+  - `filters`: A `django-filter` compatible set of filters supported on the
+    model's QuerySet. List or a Dictionary.
+  - `exclude_fields`: A list of field names to exclude from the schema
+  - `search_fields`: A list of fields to perform search on
+  - `ordering_fields`: A list of fields that can be used to order results
+  - `default_ordering`: What ordering to use if none was specified
 - Adds a `graphql_node_name` field to model classes
 - Adds a `graphql_id` property to models, which can be used to retrieve the
   Global ID of a model instance.
+
+## Usage
+
+### Setup
+
+Steps 1-3 are setup for `graphene-django`.
+See https://docs.graphene-python.org/projects/django/en/latest/installation/ for
+more details.
+
+If you are already using `graphene-django`, you can skip to step 4.
+
+1. Add `graphene-django` to your `INSTALLED_APPS`:
+   ```python
+   INSTALLED_APPS = [
+       # ...
+       "django.contrib.staticfiles", # Required for GraphiQL
+       "graphene_django",
+   ]
+   ```
+2. Add a GraphQL endpoint to the URL config:
+   ```python
+   from django.urls import path
+   from django.views.decorators.csrf import csrf_exempt
+
+   from graphene_django.views import GraphQLView
+
+   urlpatterns = [
+       # ...
+       path("graphql", csrf_exempt(GraphQLView.as_view(graphiql=True))),
+   ]
+   ```
+3. Create a schema file (e.g. `schema.py`) and configure it to Graphene:
+   ```python
+   # settings.py
+   GRAPHENE = {
+       "SCHEMA": "myapp.shcema.schema",
+   }
+   ```
+4. Declare the schema in your schema file
+   ```python
+   # schema.py
+   from simple_graphql.django import build_schema
+
+   schema = build_schema()
+   ```
+
+   If you already have an existing schema and would like to use it in
+   conjunction with `django-simple-graphql`, you can build each of the schema
+   members separately:
+
+   ```python
+   import graphene
+   from simple_graphql.django import schema_builder
+
+   Query = schema_builder.build_query()
+   Mutation = schema_builder.build_mutation()
+   Subscription = schema_builder.build_subscription()
+
+   class MyQuery(graphene.ObjectType, Query):
+       pass
+
+   class MyMutation(graphene.ObjectType, Mutation):
+       pass
+
+   class MySubscription(graphene.ObjectType, Subscription):
+       pass
+
+   schema = graphene.Schema(
+       query=MyQuery,
+       subscription=MySubscription,
+       mutation=MyMutation,
+   )
+   ```
+
+
+## Examples
+
+### Registering models
+
+There's two ways models can be added to the schema
+
+#### With a class decorator
+
+```python
+from django.db import models
+
+from simple_graphql.django import graphql_model
+
+@graphql_model()
+class Person(models.Model):
+    first_name = models.TextField()
+    last_name = models.TextField()
+```
+
+#### With a function call
+
+```python
+from django.contrib.auth import get_user_model
+
+from simple_graphql.django import register_graphql_model
+
+User = get_user_model()
+
+register_graphql_model(User)
+```
+
+### Configuring models
+
+Model specific schemas can be configured either with a metaclass or passed in
+as a parameter. A base configuration also is present regardless of custom
+declarations.
+
+If multiple configurations are present, they will be merged in the following
+precedence:
+
+1. Configuration supplied via parameters
+2. Metaclass based configuration
+3. Default configuration
+
+Where lower number means higher priority.
+
+#### Metaclass configuration
+
+```python
+from django.db import models
+
+from simple_graphql.django import graphql_model
+
+@graphql_model()
+class Person(models.Model):
+    first_name = models.TextField()
+    last_name = models.TextField()
+    credit_card_number = models.TextField()
+    parent = models.ForeignKey("self", on_delete=models.SET_NULL)
+
+    class GraphQL:
+        exclude_fields = ["credit_card_field"]
+        ordering_fields = ["first_name", "last_name"]
+        default_ordering = ["first_name"]
+        search_fields = ["first_name", "last_name"]
+        filters = ["parent"]
+```
+
+#### Parameter configuration (with a class)
+
+```python
+from django.db import models
+
+from simple_graphql.django import graphql_model
+
+
+class PersonGraphQLConfig:
+    exclude_fields = ["credit_card_field"]
+    ordering_fields = ["first_name", "last_name"]
+    default_ordering = ["first_name"]
+    search_fields = ["first_name", "last_name"]
+    filters = ["parent"]
+
+
+@graphql_model(PersonGraphQLConfig)
+class Person(models.Model):
+    first_name = models.TextField()
+    last_name = models.TextField()
+    credit_card_number = models.TextField()
+    parent = models.ForeignKey("self", on_delete=models.SET_NULL)
+```
+
+#### Parameter configuration (with a config object)
+
+```python
+from django.db import models
+
+from simple_graphql.django import graphql_model, ModelSchemaConfig
+
+
+@graphql_model(ModelSchemaConfig(
+    exclude_fields=["credit_card_field"],
+    ordering_fields=["first_name", "last_name"],
+    default_ordering=["first_name"],
+    search_fields=["first_name", "last_name"],
+    filters=["parent"],
+))
+class Person(models.Model):
+    first_name = models.TextField()
+    last_name = models.TextField()
+    credit_card_number = models.TextField()
+    parent = models.ForeignKey("self", on_delete=models.SET_NULL)
+```
+
+#### Parameter configuration (function variant)
+
+```python
+from django.contrib.auth import get_user_model
+
+from simple_graphql.django import register_graphql_model, ModelSchemaConfig
+
+User = get_user_model()
+
+# Could also use a class here just like with the decorator
+register_graphql_model(User, ModelSchemaConfig(
+    exclude_fields=["password"],
+))
+```

@@ -16,19 +16,17 @@ register_graphql_model(
 )
 
 
+class OrganizationGraphQLConfig:
+    default_ordering = "name"
+
+
+@graphql_model(OrganizationGraphQLConfig)
 class Organization(models.Model):
     graphql_id: str
     graphql_node_name: str
 
     name = models.TextField()
     address = models.TextField()
-
-
-class OrganizationGraphQLConfig:
-    default_ordering = "name"
-
-
-register_graphql_model(Organization, OrganizationGraphQLConfig)
 
 
 @graphql_model()
