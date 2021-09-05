@@ -1,17 +1,25 @@
-from typing import Any, Protocol, Type
+from typing import Any, Protocol, Type, TypeVar, Union
 
 from django.db.models import Model, QuerySet
+from django.http import HttpRequest
 from graphene import relay
 from graphene_django import DjangoObjectType
 
 from simple_graphql.django.schema.models import ModelSchemaConfig
 from simple_graphql.django.schema.utils import get_node_name
 
-# TODO: Delete and replace types relying on this
-TypeLater = Any
+T = TypeVar("T", bound=Model)
 
 
-def build_node_meta(model_cls: Type[Model], args: ModelSchemaConfig) -> Type:
+class InfoProto(Protocol):
+    context: HttpRequest
+
+
+# TODO: Change to an intersection type once supported
+QueryInfo = Union[Any, InfoProto]
+
+
+def build_node_meta(model_cls: Type[T], args: ModelSchemaConfig) -> Type:
     class Meta:
         model = model_cls
         name = get_node_name(model_cls)
@@ -25,8 +33,8 @@ def build_node_meta(model_cls: Type[Model], args: ModelSchemaConfig) -> Type:
 class GetQueryset(Protocol):
     # noinspection PyMethodParameters
     def __call__(
-        self, cls: DjangoObjectType, queryset: QuerySet[TypeLater], info: TypeLater
-    ) -> QuerySet[TypeLater]:
+        self, cls: DjangoObjectType, queryset: QuerySet[T], info: QueryInfo
+    ) -> QuerySet[T]:
         ...
 
 
@@ -38,9 +46,11 @@ def build_node_get_queryset(
     # noinspection PyDecorator
     @classmethod  # type: ignore
     def get_queryset(
-        cls: DjangoObjectType, queryset: QuerySet[TypeLater], info: TypeLater
-    ) -> QuerySet[TypeLater]:
-        # TODO: Check if this is a valid way to handle related managers
+        cls: DjangoObjectType, queryset: QuerySet[T], info: QueryInfo
+    ) -> QuerySet[T]:
+        # TODO: Check if this is a valid way to handle related managers.
+        #       Related managers have no "query" attribute, but should still be
+        #       handled somehow most likely.
         if not hasattr(queryset, "query"):
             return queryset
         is_ordered = bool(queryset.query.order_by)
