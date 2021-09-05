@@ -31,3 +31,10 @@ repos:
         require_serial: true
         pass_filenames: false
         types_or: [python, pyi]
+      - id: pytest
+        name: pytest
+        entry: poetry run python -m pytest .
+        language: system
+        require_serial: true
+        pass_filenames: false
+        types_or: [python, pyi]
