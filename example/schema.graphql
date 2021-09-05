@@ -1,0 +1,129 @@
+# This file was generated based on ".graphqlconfig". Do not edit manually.
+
+schema {
+  query: Query
+}
+
+"An object with an ID"
+interface Node {
+  "The ID of the object."
+  id: ID!
+}
+
+type Organization implements Node {
+  address: String!
+  "The ID of the object."
+  id: ID!
+  name: String!
+  personSet(after: String, before: String, first: Int, last: Int, offset: Int): PersonConnection!
+}
+
+type OrganizationConnection {
+  "Contains the nodes in this connection."
+  edges: [OrganizationEdge]!
+  "Pagination data for this connection."
+  pageInfo: PageInfo!
+}
+
+"A Relay edge containing a `Organization` and its cursor."
+type OrganizationEdge {
+  "A cursor for use in pagination"
+  cursor: String!
+  "The item at the end of the edge"
+  node: Organization
+}
+
+"The Relay compliant `PageInfo` type, containing data necessary to paginate this connection."
+type PageInfo {
+  "When paginating forwards, the cursor to continue."
+  endCursor: String
+  "When paginating forwards, are there more items?"
+  hasNextPage: Boolean!
+  "When paginating backwards, are there more items?"
+  hasPreviousPage: Boolean!
+  "When paginating backwards, the cursor to continue."
+  startCursor: String
+}
+
+type Person implements Node {
+  email: String!
+  firstName: String!
+  "The ID of the object."
+  id: ID!
+  lastName: String!
+  organization: Organization!
+}
+
+type PersonConnection {
+  "Contains the nodes in this connection."
+  edges: [PersonEdge]!
+  "Pagination data for this connection."
+  pageInfo: PageInfo!
+}
+
+"A Relay edge containing a `Person` and its cursor."
+type PersonEdge {
+  "A cursor for use in pagination"
+  cursor: String!
+  "The item at the end of the edge"
+  node: Person
+}
+
+type Query {
+  getOrganization(
+    "The ID of the object"
+    id: ID!
+  ): Organization
+  getPerson(
+    "The ID of the object"
+    id: ID!
+  ): Person
+  getUser(
+    "The ID of the object"
+    id: ID!
+  ): User
+  listOrganization(after: String, before: String, first: Int, last: Int, offset: Int): OrganizationConnection
+  listPerson(after: String, before: String, first: Int, last: Int, offset: Int): PersonConnection
+  listUser(after: String, before: String, first: Int, last: Int, offset: Int): UserConnection
+}
+
+type User implements Node {
+  dateJoined: DateTime!
+  email: String!
+  firstName: String!
+  "The ID of the object."
+  id: ID!
+  "Designates whether this user should be treated as active. Unselect this instead of deleting accounts."
+  isActive: Boolean!
+  "Designates whether the user can log into this admin site."
+  isStaff: Boolean!
+  "Designates that this user has all permissions without explicitly assigning them."
+  isSuperuser: Boolean!
+  lastLogin: DateTime
+  lastName: String!
+  "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
+  username: String!
+}
+
+type UserConnection {
+  "Contains the nodes in this connection."
+  edges: [UserEdge]!
+  "Pagination data for this connection."
+  pageInfo: PageInfo!
+}
+
+"A Relay edge containing a `User` and its cursor."
+type UserEdge {
+  "A cursor for use in pagination"
+  cursor: String!
+  "The item at the end of the edge"
+  node: User
+}
+
+
+"""
+The `DateTime` scalar type represents a DateTime
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar DateTime

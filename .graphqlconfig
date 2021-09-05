@@ -1,0 +1,15 @@
+{
+  "name": "Example GraphQL Schema",
+  "schemaPath": "example/schema.graphql",
+  "extensions": {
+    "endpoints": {
+      "Localhost": {
+        "url": "http://localhost:8000/graphql",
+        "headers": {
+          "user-agent": "GraphQL"
+        },
+        "introspect": true
+      }
+    }
+  }
+}

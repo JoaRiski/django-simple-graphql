@@ -136,6 +136,46 @@ If you are already using `graphene-django`, you can skip to step 4.
    )
    ```
 
+### Default queries
+
+By default, all model classes registered to the schema will get a query for
+fetching a single object by ID as well as a list query.
+
+For the sake of an example, let's say we have the following model declaration:
+
+```python
+from django.db import models
+
+from simple_graphql.django import graphql_model
+
+@graphql_model()
+class Person(models.Model):
+    first_name = models.TextField()
+    last_name = models.TextField()
+```
+
+The `graphql_model` decorator will add the model to our GraphQL schema builder,
+which will build it into the following schema (relay schema omitted):
+
+```graphql
+type Person implements Node {
+  id: ID!
+  lastName: String!
+  firstName: String!
+}
+
+type Query {
+  getPerson(id: ID!): Person
+  listPerson(after: String, before: String, first: Int, last: Int, offset: Int): PersonConnection
+}
+```
+
+For a more complete example of the generated schema, see
+[example/schema.graphql](example/schema.graphql)
+
+### Search
+
+TODO
 
 ## Examples
 
