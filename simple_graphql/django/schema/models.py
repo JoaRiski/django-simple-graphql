@@ -18,4 +18,6 @@ class ModelSchemaConfig:
 class ModelSchema:
     ordering_options: Optional[graphene.Enum]
     node: Type[DjangoObjectType]
-    query: Type[graphene.ObjectType]
+    query_fields: Dict[str, graphene.Field]
+    mutation_fields: Dict[str, graphene.Field]
+    subscription_fields: Dict[str, graphene.Field]

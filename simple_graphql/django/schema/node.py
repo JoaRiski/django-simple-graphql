@@ -10,9 +10,14 @@ from simple_graphql.django.schema.models import ModelSchemaConfig
 TypeLater = Any
 
 
+def get_node_name(model_cls: Type[Model]) -> str:
+    return f"{model_cls.__name__}"
+
+
 def build_node_meta(model_cls: Type[Model], args: ModelSchemaConfig) -> Type:
     class Meta:
         model = model_cls
+        name = get_node_name(model_cls)
         filter_fields = args.filters or []
         exclude_fields = args.exclude_fields or []
         interfaces = (relay.Node,)
@@ -59,5 +64,5 @@ def build_node_schema(
         Meta = meta
         get_queryset = build_node_get_queryset(model_cls, args)
 
-    AutoNode.__name__ = f"{model_cls.__name__}AutoNode"
+    AutoNode.__name__ = get_node_name(model_cls)
     return AutoNode

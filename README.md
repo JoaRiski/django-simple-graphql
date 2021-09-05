@@ -27,3 +27,4 @@
 - Perhaps a way to auto-render the schema for github diffs?
 - A way to easily include extra queries for models (e.g. with different filters)
 - Require either field exclusions or inclusions to be explicitly defined
+- Build a namespace package instead of a normal one (use "simple_graphql" as namespace root)

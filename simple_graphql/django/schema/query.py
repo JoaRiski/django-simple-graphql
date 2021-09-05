@@ -1,8 +1,10 @@
-from typing import List, Optional, Type, TypeVar
+from typing import Dict, List, Optional, Type, TypeVar, Union
 
 import graphene
 from django.db.models import Model, QuerySet
 from graphene import relay
+from graphene.types.mountedtype import MountedType
+from graphene.types.unmountedtype import UnmountedType
 from graphene.utils.str_converters import to_snake_case
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
@@ -17,18 +19,19 @@ class DjangoAutoConnectionField(DjangoFilterConnectionField):
 
     def __init__(
         self,
-        *args,
         node_cls: Type[graphene.ObjectType],
-        search_fields: Optional[List[str]] = None,
-        ordering_options: Optional[graphene.Enum] = None,
-        **kwargs,
+        search_fields: Optional[List[str]],
+        ordering_options: Optional[graphene.Enum],
+        **kwargs: Union[UnmountedType, MountedType],
     ):
         self.search_fields = search_fields
+
         if ordering_options:
             kwargs.setdefault("order_by", graphene.Argument(ordering_options))
         if search_fields:
             kwargs.setdefault("search_query", graphene.String())
-        super().__init__(node_cls, *args, **kwargs)
+
+        super().__init__(node_cls, **kwargs)
 
     @classmethod
     def resolve_queryset(cls, *args, **kwargs) -> QuerySet[T]:
@@ -52,27 +55,19 @@ def build_ordering_enum(
     )
 
 
-def build_query_schema(
+def build_query_fields(
     *,
     model_cls: Type[Model],
     node_cls: Type[DjangoObjectType],
     ordering_options: Optional[graphene.Enum],
     args: ModelSchemaConfig,
-) -> Type[graphene.ObjectType]:
-    class AutoQuery(graphene.ObjectType):
-        pass
-
+) -> Dict[str, graphene.Field]:
     query_name = to_snake_case(model_cls.__name__)
-
-    setattr(AutoQuery, f"get_{query_name}", relay.Node.Field(node_cls))
-    setattr(
-        AutoQuery,
-        f"list_{query_name}",
-        DjangoAutoConnectionField(
+    return {
+        f"get_{query_name}": relay.Node.Field(node_cls),
+        f"list_{query_name}": DjangoAutoConnectionField(
             node_cls=node_cls,
             search_fields=args.search_fields,
-            ordering_fields=ordering_options,
+            ordering_options=ordering_options,
         ),
-    )
-
-    return AutoQuery
+    }
