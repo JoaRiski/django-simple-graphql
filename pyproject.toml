@@ -1,9 +1,15 @@
 [tool.poetry]
 name = "django-simple-graphql"
 version = "0.1.0"
-description = ""
+description = "A stupid simple GraphQL setup for Django"
 authors = ["Joa Riski <joa.riski@riskidev.fi>"]
+readme = "README.md"
 license = "MIT"
+homepage = "https://github.com/JoaRiski/django-simple-graphql"
+repository = "https://github.com/JoaRiski/django-simple-graphql"
+include = [
+    "LICENSE",
+]
 packages = [
     { include = "simple_graphql" },
 ]
