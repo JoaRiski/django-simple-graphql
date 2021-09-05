@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import Dict, List, Optional, Type, Union
 
 import graphene
@@ -22,6 +22,12 @@ class ModelSchemaConfig:
             ordering_fields=None,
             default_ordering=None,
         )
+
+    @classmethod
+    def to_dict(cls, instance: Optional["ModelSchemaConfig"]):
+        if instance:
+            return asdict(instance)
+        return {}
 
 
 @dataclass

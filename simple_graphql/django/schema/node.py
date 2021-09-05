@@ -1,14 +1,13 @@
-from typing import Any, Protocol, Type, TypeVar, Union
+from typing import Any, Protocol, Type, Union
 
-from django.db.models import Model, QuerySet
+from django.db.models import QuerySet
 from django.http import HttpRequest
 from graphene import relay
 from graphene_django import DjangoObjectType
 
 from simple_graphql.django.schema.models import ModelSchemaConfig
 from simple_graphql.django.schema.utils import get_node_name
-
-T = TypeVar("T", bound=Model)
+from simple_graphql.django.types import ModelClass, ModelInstance
 
 
 class InfoProto(Protocol):
@@ -19,12 +18,12 @@ class InfoProto(Protocol):
 QueryInfo = Union[Any, InfoProto]
 
 
-def build_node_meta(model_cls: Type[T], args: ModelSchemaConfig) -> Type:
+def build_node_meta(model_cls: ModelClass, args: ModelSchemaConfig) -> Type:
     class Meta:
         model = model_cls
         name = get_node_name(model_cls)
         filter_fields = args.filters or []
-        exclude_fields = args.exclude_fields or []
+        exclude = args.exclude_fields or []
         interfaces = (relay.Node,)
 
     return Meta
@@ -33,21 +32,21 @@ def build_node_meta(model_cls: Type[T], args: ModelSchemaConfig) -> Type:
 class GetQueryset(Protocol):
     # noinspection PyMethodParameters
     def __call__(
-        self, cls: DjangoObjectType, queryset: QuerySet[T], info: QueryInfo
-    ) -> QuerySet[T]:
+        self, cls: DjangoObjectType, queryset: QuerySet[ModelInstance], info: QueryInfo
+    ) -> QuerySet[ModelInstance]:
         ...
 
 
 def build_node_get_queryset(
-    model_cls: Type[Model], args: ModelSchemaConfig
+    model_cls: ModelClass, args: ModelSchemaConfig
 ) -> GetQueryset:
     default_ordering = args.default_ordering or "-pk"
 
     # noinspection PyDecorator
     @classmethod  # type: ignore
     def get_queryset(
-        cls: DjangoObjectType, queryset: QuerySet[T], info: QueryInfo
-    ) -> QuerySet[T]:
+        cls: DjangoObjectType, queryset: QuerySet[ModelInstance], info: QueryInfo
+    ) -> QuerySet[ModelInstance]:
         # TODO: Check if this is a valid way to handle related managers.
         #       Related managers have no "query" attribute, but should still be
         #       handled somehow most likely.
@@ -63,7 +62,7 @@ def build_node_get_queryset(
 
 
 def build_node_schema(
-    model_cls: Type[Model], args: ModelSchemaConfig
+    model_cls: ModelClass, args: ModelSchemaConfig
 ) -> Type[DjangoObjectType]:
     meta = build_node_meta(model_cls, args)
 

@@ -18,7 +18,7 @@
   - Global default ordering options
   - Injection of GraphQL ID property to models, configurable name and/or disable
 - Examples
-- More lax version pinning
+- More lax version pinning (Min python 3.5 or higher)
 - Test suite against multiple version configurations
 - Proper readme
 - Proper type definitions

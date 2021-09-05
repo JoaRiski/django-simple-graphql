@@ -22,3 +22,6 @@ class Person(models.Model):
     email = models.TextField()
     secret = models.TextField()
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+
+    class GraphQL:
+        exclude_fields = ["secret"]

@@ -1,15 +1,15 @@
-from typing import Dict, Iterator, Optional, Tuple, Type, cast
+from typing import Dict, Generic, Iterator, Optional, Tuple, Type, cast
 
 import graphene
-from django.db.models import Model
 
 from simple_graphql.django.schema.exceptions import AlreadyRegistered
 from simple_graphql.django.schema.models import ModelSchema, ModelSchemaConfig
 from simple_graphql.django.schema.node import build_node_schema
 from simple_graphql.django.schema.query import build_ordering_enum, build_query_fields
+from simple_graphql.django.types import ModelClass
 
 
-def build_model_schema(model_cls: Type[Model], args: ModelSchemaConfig) -> ModelSchema:
+def build_model_schema(model_cls: ModelClass, args: ModelSchemaConfig) -> ModelSchema:
     node = build_node_schema(model_cls=model_cls, args=args)
     ordering_options = build_ordering_enum(model_cls=model_cls, args=args)
     query = build_query_fields(
@@ -37,16 +37,16 @@ def build_object_type(
     )
 
 
-class SchemaBuilder:
-    model_schemas: Optional[Dict[Type[Model], ModelSchema]] = None
-    registry: Dict[Type[Model], ModelSchemaConfig] = dict()
+class SchemaBuilder(Generic[ModelClass]):
+    model_schemas: Optional[Dict[ModelClass, ModelSchema]] = None
+    registry: Dict[ModelClass, ModelSchemaConfig] = dict()
 
-    def register_model(self, model_cls: Type[Model], config: ModelSchemaConfig):
+    def register_model(self, model_cls: ModelClass, config: ModelSchemaConfig):
         if model_cls in self.registry:
             raise AlreadyRegistered(model_cls)
         self.registry[model_cls] = config
 
-    def build_schemas(self) -> Dict[Type[Model], ModelSchema]:
+    def build_schemas(self) -> Dict[ModelClass, ModelSchema]:
         if self.model_schemas is not None:
             return self.model_schemas
         model_schemas = dict()
@@ -90,7 +90,7 @@ class SchemaBuilder:
         )
 
 
-schema_builder = SchemaBuilder()
+schema_builder: SchemaBuilder = SchemaBuilder[ModelClass]()
 
 
 def build_schema() -> graphene.Schema:

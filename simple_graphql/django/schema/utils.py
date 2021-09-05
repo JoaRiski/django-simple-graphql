@@ -1,9 +1,5 @@
-from typing import Type, TypeVar
-
-from django.db.models import Model
-
-T = TypeVar("T", bound=Model)
+from simple_graphql.django.types import ModelClass
 
 
-def get_node_name(model_cls: Type[T]) -> str:
+def get_node_name(model_cls: ModelClass) -> str:
     return f"{model_cls.__name__}"

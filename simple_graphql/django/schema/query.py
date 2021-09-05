@@ -1,7 +1,7 @@
-from typing import Dict, List, Optional, Type, TypeVar, Union
+from typing import Dict, List, Optional, Type, Union
 
 import graphene
-from django.db.models import Model, QuerySet
+from django.db.models import QuerySet
 from graphene import relay
 from graphene.types.mountedtype import MountedType
 from graphene.types.unmountedtype import UnmountedType
@@ -10,10 +10,10 @@ from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 
 from simple_graphql.django.schema.models import ModelSchemaConfig
+from simple_graphql.django.types import ModelClass, ModelInstance
 
-T = TypeVar("T", bound=Model)
 
-
+# TODO: Move to a better location
 class DjangoAutoConnectionField(DjangoFilterConnectionField):
     search_fields: Optional[List[str]]
 
@@ -34,14 +34,14 @@ class DjangoAutoConnectionField(DjangoFilterConnectionField):
         super().__init__(node_cls, **kwargs)
 
     @classmethod
-    def resolve_queryset(cls, *args, **kwargs) -> QuerySet[T]:
+    def resolve_queryset(cls, *args, **kwargs) -> QuerySet[ModelInstance]:
         # TODO: Implement search
         # TODO: Implement ordering
         return super().resolve_queryset(*args, **kwargs)
 
 
 def build_ordering_enum(
-    *, model_cls: Type[Model], args: ModelSchemaConfig
+    *, model_cls: ModelClass, args: ModelSchemaConfig
 ) -> Optional[graphene.Enum]:
     if not args.ordering_fields:
         return None
@@ -57,7 +57,7 @@ def build_ordering_enum(
 
 def build_query_fields(
     *,
-    model_cls: Type[Model],
+    model_cls: ModelClass,
     node_cls: Type[DjangoObjectType],
     ordering_options: Optional[graphene.Enum],
     args: ModelSchemaConfig,
