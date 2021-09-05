@@ -57,7 +57,7 @@ def register_model(
 # TODO: Return a properly typed class once intersections are supported.
 #       See https://github.com/python/typing/issues/213
 # TODO: Unpack model register args
-def register_schema(
+def graphql_model(
     *, config: Optional[ModelSchemaConfig] = None
 ) -> Callable[[ModelClass], ModelClass]:
     def _model_wrapper(model_cls: ModelClass) -> ModelClass:

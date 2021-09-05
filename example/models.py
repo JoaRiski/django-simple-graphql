@@ -1,9 +1,9 @@
 from django.db import models
 
-from simple_graphql.django import register_schema
+from simple_graphql.django import graphql_model
 
 
-@register_schema()
+@graphql_model()
 class Organization(models.Model):
     graphql_id: str
     graphql_node_name: str
@@ -12,7 +12,7 @@ class Organization(models.Model):
     address = models.TextField()
 
 
-@register_schema()
+@graphql_model()
 class Person(models.Model):
     graphql_id: str
     graphql_node_name: str
