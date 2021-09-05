@@ -21,7 +21,7 @@
 - More lax version pinning (Min python 3.5 or higher)
 - Test suite against multiple version configurations
 - Proper readme
-- Proper type definitions
+- Better type definitions
 - GraphQL schema docstring generation
 - Validation checks when building the schema to prevent blatantly incorrect config
   - For example, a field in search fields that doesn't exist or isn't supported
@@ -31,6 +31,7 @@
 - Build a namespace package instead of a normal one (use "simple_graphql" as namespace root)
 - Don't be as tightly coupled with graphene
   - e.g. support to https://github.com/strawberry-graphql/strawberry would be nice
+- Automatic CRUD operations
 
 
 ## Features
@@ -39,6 +40,8 @@ TODO: Improve the documentation
 
 - Enable GraphQL queries for Django models with a decorator
   - By default, includes a `getModelName` and `listModelName` queries
+  - Configure by adding a `GraphQL` meta class to the model class
+  - Alternatively supply a configuration class to the decorator
 - Adds a `graphql_node_name` field to model classes
 - Adds a `graphql_id` property to models, which can be used to retrieve the
   Global ID of a model instance.

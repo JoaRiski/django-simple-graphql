@@ -7,21 +7,15 @@ from graphene_django import DjangoObjectType
 
 @dataclass
 class ModelSchemaConfig:
-    filters: Optional[Union[Dict[str, List[str]], List[str]]]
-    exclude_fields: Optional[List[str]]
-    search_fields: Optional[List[str]]
-    ordering_fields: Optional[List[str]]
-    default_ordering: Optional[str]
+    filters: Optional[Union[Dict[str, List[str]], List[str]]] = None
+    exclude_fields: Optional[List[str]] = None
+    search_fields: Optional[List[str]] = None
+    ordering_fields: Optional[List[str]] = None
+    default_ordering: Optional[str] = None
 
     @classmethod
     def get_defaults(cls) -> "ModelSchemaConfig":
-        return cls(
-            filters=None,
-            exclude_fields=None,
-            search_fields=None,
-            ordering_fields=None,
-            default_ordering=None,
-        )
+        return cls()
 
     @classmethod
     def to_dict(cls, instance: Optional["ModelSchemaConfig"]):

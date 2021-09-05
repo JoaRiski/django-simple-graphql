@@ -31,7 +31,7 @@ def get_model_graphql_meta(
 
 
 # TODO: Move to a better location
-def register_model(
+def register_graphql_model(
     model_cls: Union[ModelClass, ModelWithMeta],
     config: Optional[ModelSchemaConfig] = None,
 ) -> None:
@@ -65,7 +65,7 @@ def graphql_model(
         if not issubclass(model_cls, Model):
             raise ValueError("Wrapped class must subclass Model.")
 
-        register_model(model_cls, config)
+        register_graphql_model(model_cls, config)
         return model_cls
 
     return _model_wrapper
