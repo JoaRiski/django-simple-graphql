@@ -56,3 +56,23 @@ def test_query(
             },
         },
     )
+
+
+@pytest.mark.django_db
+def test_query_excluded_field_fails(person: Person, gclient: GraphQLClient):
+    query = dedent(
+        f"""
+        {{
+            getPerson(id: "{person.graphql_id}") {{
+                __typename
+                id
+                secret
+            }}
+        }}
+        """
+    )
+    response = gclient.query(query)
+    assert response.status_code == 400
+    gclient.assert_response_has_error_message(
+        response, 'Cannot query field \\"secret\\" on type \\"Person\\".'
+    )

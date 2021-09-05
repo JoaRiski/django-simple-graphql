@@ -41,7 +41,8 @@ class GraphQLClient:
     def assert_response_has_error_message(self, response, message):
         content = json.loads(response.content)
         assert "errors" in content
-        assert message in json.dumps(content["errors"])
+        errors = json.dumps(content["errors"])
+        assert message in errors, f"{message} not found in {errors}"
 
     def get_single_query_result(self, response):
         content = json.loads(response.content)
