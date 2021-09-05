@@ -16,6 +16,7 @@
   - Enable/disable search globally
   - Enable/disable ordering globally
   - Global default ordering options
+  - Injection of GraphQL ID property to models, configurable name and/or disable
 - Examples
 - More lax version pinning
 - Test suite against multiple version configurations
@@ -30,4 +31,14 @@
 - Build a namespace package instead of a normal one (use "simple_graphql" as namespace root)
 - Don't be as tightly coupled with graphene
   - e.g. support to https://github.com/strawberry-graphql/strawberry would be nice
-- Inject a helper function to for getting their Global ID
+
+
+## Features
+
+TODO: Improve the documentation
+
+- Enable GraphQL queries for Django models with a decorator
+  - By default, includes a `getModelName` and `listModelName` queries
+- Adds a `graphql_node_name` field to model classes
+- Adds a `graphql_id` property to models, which can be used to retrieve the
+  Global ID of a model instance.

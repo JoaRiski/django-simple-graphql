@@ -5,13 +5,10 @@ from graphene import relay
 from graphene_django import DjangoObjectType
 
 from simple_graphql.django.schema.models import ModelSchemaConfig
+from simple_graphql.django.schema.utils import get_node_name
 
 # TODO: Delete and replace types relying on this
 TypeLater = Any
-
-
-def get_node_name(model_cls: Type[Model]) -> str:
-    return f"{model_cls.__name__}"
 
 
 def build_node_meta(model_cls: Type[Model], args: ModelSchemaConfig) -> Type:

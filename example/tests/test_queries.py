@@ -1,7 +1,6 @@
 from textwrap import dedent
 
 import pytest
-from graphql_relay import to_global_id
 
 from example.models import Organization, Person
 from example.test_utils.client import GraphQLClient
@@ -19,11 +18,10 @@ def test_introspection(gclient: GraphQLClient) -> None:
 def test_query(
     person: Person, organization: Organization, gclient: GraphQLClient
 ) -> None:
-    person_id = to_global_id("Person", person.pk)
     query = dedent(
         f"""
         {{
-            getPerson(id: "{person_id}") {{
+            getPerson(id: "{person.graphql_id}") {{
                 __typename
                 id
                 firstName
@@ -46,13 +44,13 @@ def test_query(
         response,
         {
             "__typename": "Person",
-            "id": person_id,
+            "id": person.graphql_id,
             "firstName": person.first_name,
             "lastName": person.last_name,
             "email": person.email,
             "organization": {
                 "__typename": "Organization",
-                "id": to_global_id("Organization", organization.pk),
+                "id": organization.graphql_id,
                 "name": organization.name,
                 "address": organization.address,
             },
