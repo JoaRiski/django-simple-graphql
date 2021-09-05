@@ -1,9 +1,18 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 
 from simple_graphql.django import (
     ModelSchemaConfig,
     graphql_model,
     register_graphql_model,
+)
+
+User = get_user_model()
+register_graphql_model(
+    User,
+    ModelSchemaConfig(
+        exclude_fields=["password"],
+    ),
 )
 
 
@@ -16,10 +25,10 @@ class Organization(models.Model):
 
 
 class OrganizationGraphQLConfig:
-    pass
+    default_ordering = "name"
 
 
-register_graphql_model(Organization, ModelSchemaConfig(default_ordering="name"))
+register_graphql_model(Organization, OrganizationGraphQLConfig)
 
 
 @graphql_model()

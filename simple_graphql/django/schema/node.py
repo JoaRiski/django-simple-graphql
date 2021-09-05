@@ -5,9 +5,8 @@ from django.http import HttpRequest
 from graphene import relay
 from graphene_django import DjangoObjectType
 
-from simple_graphql.django.schema.models import ModelSchemaConfig
 from simple_graphql.django.schema.utils import get_node_name
-from simple_graphql.django.types import ModelClass, ModelInstance
+from simple_graphql.django.types import ModelClass, ModelInstance, ModelSchemaConfig
 
 
 class InfoProto(Protocol):

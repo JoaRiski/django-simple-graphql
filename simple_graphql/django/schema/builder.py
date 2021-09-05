@@ -3,10 +3,9 @@ from typing import Dict, Generic, Iterator, Optional, Tuple, Type, cast
 import graphene
 
 from simple_graphql.django.schema.exceptions import AlreadyRegistered
-from simple_graphql.django.schema.models import ModelSchema, ModelSchemaConfig
 from simple_graphql.django.schema.node import build_node_schema
 from simple_graphql.django.schema.query import build_ordering_enum, build_query_fields
-from simple_graphql.django.types import ModelClass
+from simple_graphql.django.types import ModelClass, ModelSchema, ModelSchemaConfig
 
 
 def build_model_schema(model_cls: ModelClass, args: ModelSchemaConfig) -> ModelSchema:

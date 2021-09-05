@@ -6,8 +6,7 @@ from graphene.utils.str_converters import to_snake_case
 from graphene_django import DjangoObjectType
 
 from simple_graphql.django.fields import DjangoAutoConnectionField
-from simple_graphql.django.schema.models import ModelSchemaConfig
-from simple_graphql.django.types import ModelClass
+from simple_graphql.django.types import ModelClass, ModelSchemaConfig
 
 
 def build_ordering_enum(
