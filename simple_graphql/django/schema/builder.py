@@ -9,16 +9,7 @@ from simple_graphql.django.schema.node import build_node_schema
 from simple_graphql.django.schema.query import build_ordering_enum, build_query_fields
 
 
-def build_model_schema(
-    model_cls: Type[Model], args: Optional[ModelSchemaConfig]
-) -> ModelSchema:
-    args = args or ModelSchemaConfig(
-        filters=[],
-        exclude_fields=[],
-        search_fields=[],
-        ordering_fields=[],
-        default_ordering=None,
-    )
+def build_model_schema(model_cls: Type[Model], args: ModelSchemaConfig) -> ModelSchema:
     node = build_node_schema(model_cls=model_cls, args=args)
     ordering_options = build_ordering_enum(model_cls=model_cls, args=args)
     query = build_query_fields(
@@ -48,11 +39,9 @@ def build_object_type(
 
 class SchemaBuilder:
     model_schemas: Optional[Dict[Type[Model], ModelSchema]] = None
-    registry: Dict[Type[Model], Optional[ModelSchemaConfig]] = dict()
+    registry: Dict[Type[Model], ModelSchemaConfig] = dict()
 
-    def register_model(
-        self, model_cls: Type[Model], config: Optional[ModelSchemaConfig]
-    ):
+    def register_model(self, model_cls: Type[Model], config: ModelSchemaConfig):
         if model_cls in self.registry:
             raise AlreadyRegistered(model_cls)
         self.registry[model_cls] = config

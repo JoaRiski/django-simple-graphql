@@ -13,6 +13,16 @@ class ModelSchemaConfig:
     ordering_fields: Optional[List[str]]
     default_ordering: Optional[str]
 
+    @classmethod
+    def get_defaults(cls) -> "ModelSchemaConfig":
+        return cls(
+            filters=None,
+            exclude_fields=None,
+            search_fields=None,
+            ordering_fields=None,
+            default_ordering=None,
+        )
+
 
 @dataclass
 class ModelSchema:
