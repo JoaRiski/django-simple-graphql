@@ -1,0 +1,6 @@
+[run]
+branch = True
+source = simple_graphql
+
+[html]
+directory = htmlcov

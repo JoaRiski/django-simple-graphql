@@ -9,6 +9,8 @@ SECRET_KEY = 1
 
 INSTALLED_APPS = [
     "django.contrib.staticfiles",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
     "graphene_django",
     "example",
 ]

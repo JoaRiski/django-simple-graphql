@@ -80,7 +80,8 @@ class SchemaBuilder:
                 yield name, field
 
     def build_mutation(self) -> Optional[Type[graphene.ObjectType]]:
-        return build_object_type("Mutation", self.query_fields_iter())
+        result = build_object_type("Mutation", self.mutation_fields_iter())
+        return result if result._meta.fields else None
 
     def subscription_fields_iter(self) -> Iterator[Tuple[str, graphene.Field]]:
         for schema in self.build_schemas().values():
@@ -88,7 +89,8 @@ class SchemaBuilder:
                 yield name, field
 
     def build_subscription(self) -> Optional[Type[graphene.ObjectType]]:
-        return build_object_type("Subscription", self.query_fields_iter())
+        result = build_object_type("Subscription", self.subscription_fields_iter())
+        return result if result._meta.fields else None
 
     def build_schema(self) -> graphene.Schema:
         # noinspection PyTypeChecker

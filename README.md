@@ -28,3 +28,6 @@
 - A way to easily include extra queries for models (e.g. with different filters)
 - Require either field exclusions or inclusions to be explicitly defined
 - Build a namespace package instead of a normal one (use "simple_graphql" as namespace root)
+- Don't be as tightly coupled with graphene
+  - e.g. support to https://github.com/strawberry-graphql/strawberry would be nice
+- Inject a helper function to for getting their Global ID
