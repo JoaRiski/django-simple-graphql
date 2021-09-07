@@ -1,5 +1,6 @@
-from typing import Any, Protocol, Type, Union
+from typing import Any, Optional, Protocol, Type, Union
 
+import graphene
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from graphene import relay
@@ -26,6 +27,21 @@ def build_node_meta(model_cls: ModelClass, args: ModelSchemaConfig) -> Type:
         interfaces = (relay.Node,)
 
     return Meta
+
+
+# graphene-django only carries over a specific set of meta fields, so we need
+# to attach our own meta object
+def build_node_extra_meta(
+    args: ModelSchemaConfig,
+    ordering_options: Optional[graphene.Enum],
+) -> Type:
+    _ordering_options = ordering_options
+
+    class ExtraMeta:
+        search_fields = args.search_fields or []
+        ordering_options = _ordering_options
+
+    return ExtraMeta
 
 
 class GetQueryset(Protocol):
@@ -61,12 +77,16 @@ def build_node_get_queryset(
 
 
 def build_node_schema(
-    model_cls: ModelClass, args: ModelSchemaConfig
+    model_cls: ModelClass,
+    args: ModelSchemaConfig,
+    ordering_options: Optional[graphene.Enum],
 ) -> Type[DjangoObjectType]:
     meta = build_node_meta(model_cls, args)
+    extra_meta = build_node_extra_meta(args, ordering_options)
 
     class AutoNode(DjangoObjectType):
         Meta = meta
+        ExtraMeta = extra_meta
         get_queryset = build_node_get_queryset(model_cls, args)
 
     AutoNode.__name__ = get_node_name(model_cls)

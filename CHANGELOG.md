@@ -16,6 +16,8 @@
   been built
 - Simplify schema declaration by allowing the schema object to be used for
   registering models, as opposed to having to use a separate builder
+- Added support for basic search
+- Added support for ordering
 
 ## 0.1.0
 

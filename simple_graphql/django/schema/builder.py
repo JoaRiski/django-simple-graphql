@@ -33,11 +33,11 @@ from simple_graphql.django.types import (
 
 
 def build_model_schema(model_cls: ModelClass, args: ModelSchemaConfig) -> ModelSchema:
-    node = build_node_schema(model_cls=model_cls, args=args)
     ordering_options = build_ordering_enum(model_cls=model_cls, args=args)
-    query = build_query_fields(
-        model_cls=model_cls, node_cls=node, ordering_options=ordering_options, args=args
+    node = build_node_schema(
+        model_cls=model_cls, args=args, ordering_options=ordering_options
     )
+    query = build_query_fields(model_cls=model_cls, node_cls=node)
     return ModelSchema(
         node=node,
         ordering_options=ordering_options,

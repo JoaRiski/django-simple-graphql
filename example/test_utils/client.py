@@ -65,20 +65,19 @@ class GraphQLClient:
         else:
             return set(data)
 
-    def get_node_ids(self, response) -> set:
+    def get_node_ids(self, response) -> list:
         data = self.get_single_query_result(response)
 
         if "edges" in data:
-            edges = data["edges"]
-            result = set()
-            for edge in edges:
-                result.add(edge["node"]["id"])
-            return result
+            return [edge["node"]["id"] for edge in data["edges"]]
         else:
-            return {data["id"]}
+            return [data["id"]]
+
+    def get_unique_node_ids(self, response) -> set:
+        return set(self.get_node_ids(response))
 
     def assert_query_result_node_ids_match(self, response, expected):
-        response_ids = self.get_node_ids(response)
+        response_ids = self.get_unique_node_ids(response)
         expected_ids = self.ensure_set(expected)
 
         assert len(response_ids) == len(expected_ids)
@@ -88,7 +87,7 @@ class GraphQLClient:
 
     def assert_query_result_has_no_ids(self, response, unexpected):
         unexpected_ids = self.ensure_set(unexpected)
-        response_ids = self.get_node_ids(response)
+        response_ids = self.get_unique_node_ids(response)
         for entry in unexpected_ids:
             assert entry not in response_ids
 

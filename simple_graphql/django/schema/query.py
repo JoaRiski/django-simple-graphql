@@ -28,15 +28,9 @@ def build_query_fields(
     *,
     model_cls: ModelClass,
     node_cls: Type[DjangoObjectType],
-    ordering_options: Optional[graphene.Enum],
-    args: ModelSchemaConfig,
 ) -> Dict[str, graphene.Field]:
     query_name = to_snake_case(model_cls.__name__)
     return {
         f"get_{query_name}": relay.Node.Field(node_cls),
-        f"list_{query_name}": DjangoAutoConnectionField(
-            node_cls=node_cls,
-            search_fields=args.search_fields,
-            ordering_options=ordering_options,
-        ),
+        f"list_{query_name}": DjangoAutoConnectionField(node_cls=node_cls),
     }

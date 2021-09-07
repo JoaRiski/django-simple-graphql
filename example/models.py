@@ -15,6 +15,8 @@ schema.register_model(
 
 class OrganizationGraphQLConfig:
     default_ordering = "name"
+    search_fields = ["name", "address"]
+    ordering_fields = ["name", "address"]
 
 
 @schema.graphql_model(OrganizationGraphQLConfig)
@@ -39,3 +41,5 @@ class Person(models.Model):
 
     class GraphQL:
         exclude_fields = ["secret"]
+        search_fields = ["first_name", "last_name", "email"]
+        ordering_fields = ["first_name", "last_name", "email"]

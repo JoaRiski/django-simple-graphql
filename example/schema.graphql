@@ -82,8 +82,8 @@ type Query {
     "The ID of the object"
     id: ID!
   ): User
-  listOrganization(after: String, before: String, first: Int, last: Int, offset: Int): OrganizationConnection
-  listPerson(after: String, before: String, first: Int, last: Int, offset: Int): PersonConnection
+  listOrganization(after: String, before: String, first: Int, last: Int, offset: Int, orderBy: OrganizationOrdering, searchQuery: String): OrganizationConnection
+  listPerson(after: String, before: String, first: Int, last: Int, offset: Int, orderBy: PersonOrdering, searchQuery: String): PersonConnection
   listUser(after: String, before: String, first: Int, last: Int, offset: Int): UserConnection
 }
 
@@ -118,6 +118,24 @@ type UserEdge {
   cursor: String!
   "The item at the end of the edge"
   node: User
+}
+
+"An enumeration."
+enum OrganizationOrdering {
+  ADDRESS_ASC
+  ADDRESS_DESC
+  NAME_ASC
+  NAME_DESC
+}
+
+"An enumeration."
+enum PersonOrdering {
+  EMAIL_ASC
+  EMAIL_DESC
+  FIRST_NAME_ASC
+  FIRST_NAME_DESC
+  LAST_NAME_ASC
+  LAST_NAME_DESC
 }
 
 

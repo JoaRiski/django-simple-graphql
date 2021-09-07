@@ -42,6 +42,8 @@ A stupid simple GraphQL setup for Django
 - Query cost analysis / rate limiting
 - Consider supporting an alternative approach where registration decorator
   could be applied to a GraphQL config object instead of the model class
+- Allow the register decorator be used with or without function call. Possibly
+  also allow it's use as a non-decorator registering function.
 
 
 ## Features (already supported)

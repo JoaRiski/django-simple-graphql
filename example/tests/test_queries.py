@@ -76,3 +76,75 @@ def test_query_excluded_field_fails(person: Person, gclient: GraphQLClient):
     gclient.assert_response_has_error_message(
         response, 'Cannot query field \\"secret\\" on type \\"Person\\".'
     )
+
+
+@pytest.mark.django_db
+def test_query_search_query(gclient: GraphQLClient):
+    org_a = Organization.objects.create(name="Foo", address="Foo street 123")
+    org_b = Organization.objects.create(name="Bar", address="Bar street 123")
+    query = dedent(
+        """
+        query ListOrganization($query: String) {
+            listOrganization(searchQuery: $query) {
+                edges {
+                    node {
+                        id
+                    }
+                }
+            }
+        }
+        """
+    )
+    response = gclient.query(query, variables={"query": "Foo"})
+    assert response.status_code == 200
+    gclient.assert_query_result_node_ids_match(response, [org_a.graphql_id])
+
+    response = gclient.query(query, variables={"query": "Bar"})
+    assert response.status_code == 200
+    gclient.assert_query_result_node_ids_match(response, [org_b.graphql_id])
+
+    response = gclient.query(query, variables={"query": "street"})
+
+    assert response.status_code == 200
+    gclient.assert_query_result_node_ids_match(
+        response,
+        [
+            org_b.graphql_id,
+            org_a.graphql_id,
+        ],
+    )
+
+
+@pytest.mark.django_db
+def test_query_order_by(gclient: GraphQLClient):
+    org_a = Organization.objects.create(name="Foo", address="Foo street 123")
+    org_b = Organization.objects.create(name="Bar", address="Bar street 123")
+    query = dedent(
+        """
+        query ListOrganization($ordering: OrganizationOrdering) {
+            listOrganization(orderBy: $ordering) {
+                edges {
+                    node {
+                        id
+                    }
+                }
+            }
+        }
+        """
+    )
+    response = gclient.query(query, variables={"ordering": "NAME_ASC"})
+    assert response.status_code == 200
+    ids = gclient.get_node_ids(response)
+    assert ids == [
+        org_b.graphql_id,
+        org_a.graphql_id,
+    ]
+
+    response = gclient.query(query, variables={"ordering": "NAME_DESC"})
+
+    assert response.status_code == 200
+    ids = gclient.get_node_ids(response)
+    assert ids == [
+        org_a.graphql_id,
+        org_b.graphql_id,
+    ]
