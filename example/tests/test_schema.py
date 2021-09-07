@@ -1,8 +1,8 @@
-from simple_graphql.django import build_schema
+from example.schema import schema_builder
 
 
 def test_schema_building() -> None:
-    schema = build_schema()
+    schema = schema_builder.build_schema()
     assert schema
 
     expected_queries = (

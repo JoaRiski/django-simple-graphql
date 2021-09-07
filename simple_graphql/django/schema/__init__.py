@@ -1,3 +1,3 @@
-from .builder import build_schema, schema_builder
+from .builder import SchemaBuilder
 
-__all__ = ["build_schema", "schema_builder"]
+__all__ = ["SchemaBuilder"]

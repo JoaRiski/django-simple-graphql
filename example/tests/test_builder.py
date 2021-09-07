@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 
 from example.models import Organization, Person
-from simple_graphql.django import schema_builder
+from example.schema import schema_builder
 
 User = get_user_model()
 

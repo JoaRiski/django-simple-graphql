@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- Removed global schema builder instance
+- Removed global decorator for model registering to GraphQL schema
+- Removed global function for model registering to GraphQL schema
+- Added a decorator to schema builder instances which can be used to register
+  models to the schema
+- Added a function to the schema builder instance which can be used to register
+  models to the schema
+- Made the `SchemaBuilder.build_schema` return a lazy object instead of building
+  the schema immediately, as it can only be built after model imports have
+  fully finished
+
 ## 0.1.0
 
 - Initial release

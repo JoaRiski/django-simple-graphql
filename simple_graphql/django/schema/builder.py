@@ -1,11 +1,33 @@
-from typing import Dict, Generic, Iterator, Optional, Tuple, Type, cast
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    Iterator,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
 
 import graphene
+from django.db.models import Model
+from django.utils.functional import SimpleLazyObject
+from graphql_relay import to_global_id
 
+from simple_graphql.django.config import extract_schema_config, get_model_graphql_meta
 from simple_graphql.django.schema.exceptions import AlreadyRegistered
 from simple_graphql.django.schema.node import build_node_schema
 from simple_graphql.django.schema.query import build_ordering_enum, build_query_fields
-from simple_graphql.django.types import ModelClass, ModelSchema, ModelSchemaConfig
+from simple_graphql.django.schema.utils import get_node_name
+from simple_graphql.django.types import (
+    ModelClass,
+    ModelConfig,
+    ModelSchema,
+    ModelSchemaConfig,
+    ModelWithMeta,
+)
 
 
 def build_model_schema(model_cls: ModelClass, args: ModelSchemaConfig) -> ModelSchema:
@@ -36,14 +58,53 @@ def build_object_type(
     )
 
 
+def attach_graphql_meta(
+    model_cls: ModelClass,
+) -> Union[ModelClass, Type[ModelWithMeta]]:
+    # TODO: Remove casts once mypy supports intersection types
+    # TODO: Make inclusion configurable, implicitly mutating model classes
+    #       might not be a very nice thing to do
+    cast(Any, model_cls).graphql_id = property(
+        lambda self: to_global_id(self.graphql_node_name, self.pk)
+    )
+    cast(Any, model_cls).graphql_node_name = get_node_name(model_cls)
+    return model_cls
+
+
 class SchemaBuilder(Generic[ModelClass]):
     model_schemas: Optional[Dict[ModelClass, ModelSchema]] = None
     registry: Dict[ModelClass, ModelSchemaConfig] = dict()
 
-    def register_model(self, model_cls: ModelClass, config: ModelSchemaConfig):
+    def register_model(
+        self,
+        model_cls: ModelClass,
+        config: Optional[ModelConfig] = None,
+    ) -> None:
+        attach_graphql_meta(model_cls)
+        merged_config = ModelSchemaConfig(
+            **{
+                **ModelSchemaConfig.to_dict(ModelSchemaConfig.get_defaults()),
+                **(ModelSchemaConfig.to_dict(get_model_graphql_meta(model_cls))),
+                **(ModelSchemaConfig.to_dict(extract_schema_config(config))),
+            }
+        )
+
         if model_cls in self.registry:
             raise AlreadyRegistered(model_cls)
-        self.registry[model_cls] = config
+        self.registry[model_cls] = merged_config
+
+    def graphql_model(
+        self, config: Optional[ModelConfig] = None
+    ) -> Callable[[ModelClass], ModelClass]:
+        def _model_wrapper(model_cls: ModelClass) -> ModelClass:
+
+            if not issubclass(model_cls, Model):
+                raise ValueError("Wrapped class must subclass Model.")
+
+            self.register_model(model_cls, config)
+            return model_cls
+
+        return _model_wrapper
 
     def build_schemas(self) -> Dict[ModelClass, ModelSchema]:
         if self.model_schemas is not None:
@@ -81,16 +142,13 @@ class SchemaBuilder(Generic[ModelClass]):
         return result if result._meta.fields else None
 
     def build_schema(self) -> graphene.Schema:
-        # noinspection PyTypeChecker
-        return graphene.Schema(
-            query=self.build_query(),
-            mutation=self.build_mutation(),
-            subscription=self.build_subscription(),
-        )
+        def _build_schema() -> graphene.Schema:
+            # noinspection PyTypeChecker
+            return graphene.Schema(
+                query=self.build_query(),
+                mutation=self.build_mutation(),
+                subscription=self.build_subscription(),
+            )
 
-
-schema_builder: SchemaBuilder = SchemaBuilder[ModelClass]()
-
-
-def build_schema() -> graphene.Schema:
-    return schema_builder.build_schema()
+        # TODO: Use a type-hinted lazy object instead when supported
+        return cast(graphene.Schema, SimpleLazyObject(_build_schema))
