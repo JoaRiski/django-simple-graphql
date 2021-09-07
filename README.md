@@ -44,6 +44,8 @@ A stupid simple GraphQL setup for Django
   could be applied to a GraphQL config object instead of the model class
 - Allow the register decorator be used with or without function call. Possibly
   also allow it's use as a non-decorator registering function.
+- Add support for using the schema builder if there's need to combine with an
+  existing graphene schema declaration.
 
 
 ## Features (already supported)
@@ -105,38 +107,11 @@ If you are already using `graphene-django`, you can skip to step 4.
 4. Declare the schema in your schema file
    ```python
    # schema.py
-   from simple_graphql.django import build_schema
+   from simple_graphql.django import Schema
 
-   schema = build_schema()
+   schema = Schema()
    ```
 
-   If you already have an existing schema and would like to use it in
-   conjunction with `django-simple-graphql`, you can build each of the schema
-   members separately:
-
-   ```python
-   import graphene
-   from simple_graphql.django import schema_builder
-
-   Query = schema_builder.build_query()
-   Mutation = schema_builder.build_mutation()
-   Subscription = schema_builder.build_subscription()
-
-   class MyQuery(graphene.ObjectType, Query):
-       pass
-
-   class MyMutation(graphene.ObjectType, Mutation):
-       pass
-
-   class MySubscription(graphene.ObjectType, Subscription):
-       pass
-
-   schema = graphene.Schema(
-       query=MyQuery,
-       subscription=MySubscription,
-       mutation=MyMutation,
-   )
-   ```
 
 ### Default queries
 
@@ -148,9 +123,9 @@ For the sake of an example, let's say we have the following model declaration:
 ```python
 from django.db import models
 
-from simple_graphql.django import graphql_model
+from myapp.schema import schema
 
-@graphql_model()
+@schema.graphql_model()
 class Person(models.Model):
     first_name = models.TextField()
     last_name = models.TextField()
@@ -190,9 +165,9 @@ There's two ways models can be added to the schema
 ```python
 from django.db import models
 
-from simple_graphql.django import graphql_model
+from myapp.schema import schema
 
-@graphql_model()
+@schema.graphql_model()
 class Person(models.Model):
     first_name = models.TextField()
     last_name = models.TextField()
@@ -203,11 +178,11 @@ class Person(models.Model):
 ```python
 from django.contrib.auth import get_user_model
 
-from simple_graphql.django import register_graphql_model
+from myapp.schema import schema
 
 User = get_user_model()
 
-register_graphql_model(User)
+schema.register_model(User)
 ```
 
 ### Configuring models
@@ -230,9 +205,9 @@ Where lower number means higher priority.
 ```python
 from django.db import models
 
-from simple_graphql.django import graphql_model
+from myapp.schema import schema
 
-@graphql_model()
+@schema.graphql_model()
 class Person(models.Model):
     first_name = models.TextField()
     last_name = models.TextField()
@@ -252,7 +227,7 @@ class Person(models.Model):
 ```python
 from django.db import models
 
-from simple_graphql.django import graphql_model
+from myapp.schema import schema
 
 
 class PersonGraphQLConfig:
@@ -263,7 +238,7 @@ class PersonGraphQLConfig:
     filters = ["parent"]
 
 
-@graphql_model(PersonGraphQLConfig)
+@schema.graphql_model(PersonGraphQLConfig)
 class Person(models.Model):
     first_name = models.TextField()
     last_name = models.TextField()
@@ -276,10 +251,12 @@ class Person(models.Model):
 ```python
 from django.db import models
 
-from simple_graphql.django import graphql_model, ModelSchemaConfig
+from simple_graphql.django import ModelSchemaConfig
+
+from myapp.schema import schema
 
 
-@graphql_model(ModelSchemaConfig(
+@schema.graphql_model(ModelSchemaConfig(
     exclude_fields=["credit_card_number"],
     ordering_fields=["first_name", "last_name"],
     default_ordering=["first_name"],
@@ -298,12 +275,14 @@ class Person(models.Model):
 ```python
 from django.contrib.auth import get_user_model
 
-from simple_graphql.django import register_graphql_model, ModelSchemaConfig
+from simple_graphql.django import ModelSchemaConfig
+
+from myapp.schema import schema
 
 User = get_user_model()
 
 # Could also use a class here just like with the decorator
-register_graphql_model(User, ModelSchemaConfig(
+schema.register_model(User, ModelSchemaConfig(
     exclude_fields=["password"],
 ))
 ```
