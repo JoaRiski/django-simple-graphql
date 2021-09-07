@@ -238,7 +238,7 @@ class Person(models.Model):
     parent = models.ForeignKey("self", on_delete=models.SET_NULL)
 
     class GraphQL:
-        exclude_fields = ["credit_card_field"]
+        exclude_fields = ["credit_card_number"]
         ordering_fields = ["first_name", "last_name"]
         default_ordering = ["first_name"]
         search_fields = ["first_name", "last_name"]
@@ -254,7 +254,7 @@ from simple_graphql.django import graphql_model
 
 
 class PersonGraphQLConfig:
-    exclude_fields = ["credit_card_field"]
+    exclude_fields = ["credit_card_number"]
     ordering_fields = ["first_name", "last_name"]
     default_ordering = ["first_name"]
     search_fields = ["first_name", "last_name"]
@@ -278,7 +278,7 @@ from simple_graphql.django import graphql_model, ModelSchemaConfig
 
 
 @graphql_model(ModelSchemaConfig(
-    exclude_fields=["credit_card_field"],
+    exclude_fields=["credit_card_number"],
     ordering_fields=["first_name", "last_name"],
     default_ordering=["first_name"],
     search_fields=["first_name", "last_name"],
