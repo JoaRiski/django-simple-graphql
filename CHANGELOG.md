@@ -14,6 +14,8 @@
   fully finished
 - Added a check ensuring the schema does not get additional entries once it has
   been built
+- Simplify schema declaration by allowing the schema object to be used for
+  registering models, as opposed to having to use a separate builder
 
 ## 0.1.0
 

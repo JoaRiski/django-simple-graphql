@@ -13,7 +13,6 @@ from typing import (
 
 import graphene
 from django.db.models import Model
-from django.utils.functional import SimpleLazyObject
 from graphql_relay import to_global_id
 
 from simple_graphql.django.config import extract_schema_config, get_model_graphql_meta
@@ -157,16 +156,10 @@ class SchemaBuilder(Generic[ModelClass]):
         result = build_object_type("Subscription", self.subscription_fields_iter())
         return result if result._meta.fields else None
 
-    def _build_schema(self) -> graphene.Schema:
+    def build_schema(self) -> graphene.Schema:
         # noinspection PyTypeChecker
         return graphene.Schema(
             query=self.build_query(),
             mutation=self.build_mutation(),
             subscription=self.build_subscription(),
         )
-
-    def build_schema(self) -> graphene.Schema:
-        if not self._schema:
-            # TODO: Use a type-hinted lazy object instead when supported
-            self._schema = cast(graphene.Schema, SimpleLazyObject(self._build_schema))
-        return self._schema

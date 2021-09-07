@@ -1,11 +1,11 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from example.schema import schema_builder
+from example.schema import schema
 from simple_graphql.django import ModelSchemaConfig
 
 User = get_user_model()
-schema_builder.register_model(
+schema.register_model(
     User,
     ModelSchemaConfig(
         exclude_fields=["password"],
@@ -17,7 +17,7 @@ class OrganizationGraphQLConfig:
     default_ordering = "name"
 
 
-@schema_builder.graphql_model(OrganizationGraphQLConfig)
+@schema.graphql_model(OrganizationGraphQLConfig)
 class Organization(models.Model):
     graphql_id: str
     graphql_node_name: str
@@ -26,7 +26,7 @@ class Organization(models.Model):
     address = models.TextField()
 
 
-@schema_builder.graphql_model()
+@schema.graphql_model()
 class Person(models.Model):
     graphql_id: str
     graphql_node_name: str

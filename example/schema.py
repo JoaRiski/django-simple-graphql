@@ -1,5 +1,3 @@
-from simple_graphql.django import SchemaBuilder
-from simple_graphql.django.types import ModelClass
+from simple_graphql.django import Schema
 
-schema_builder: SchemaBuilder = SchemaBuilder[ModelClass]()
-schema = schema_builder.build_schema()
+schema = Schema()

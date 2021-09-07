@@ -1,3 +1,4 @@
 from .builder import SchemaBuilder
+from .schema import Schema
 
-__all__ = ["SchemaBuilder"]
+__all__ = ["Schema", "SchemaBuilder"]

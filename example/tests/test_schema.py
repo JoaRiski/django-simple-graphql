@@ -1,8 +1,7 @@
-from example.schema import schema_builder
+from example.schema import schema
 
 
 def test_schema_building() -> None:
-    schema = schema_builder.build_schema()
     assert schema
 
     expected_queries = (
