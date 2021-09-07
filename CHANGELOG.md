@@ -12,6 +12,8 @@
 - Made the `SchemaBuilder.build_schema` return a lazy object instead of building
   the schema immediately, as it can only be built after model imports have
   fully finished
+- Added a check ensuring the schema does not get additional entries once it has
+  been built
 
 ## 0.1.0
 

@@ -7,3 +7,7 @@ class AlreadyRegistered(Exception):
             f"Model {model_cls.__name__} "
             "has already been registered to the GraphQL schema"
         )
+
+
+class SchemaAlreadyBuilt(Exception):
+    pass
