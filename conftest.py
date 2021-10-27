@@ -1,8 +1,11 @@
+from typing import Any
+
 import pytest
 from django.test.client import Client
 
 from example.models import Organization, Person
 from example.test_utils.client import GraphQLClient
+from simple_graphql.auth.models import AuthenticationSession
 
 
 @pytest.fixture
@@ -27,3 +30,8 @@ def person(organization: Organization) -> Person:
 @pytest.fixture
 def gclient(client: Client) -> GraphQLClient:
     return GraphQLClient(client)
+
+
+@pytest.fixture
+def session(admin_user: Any) -> AuthenticationSession:
+    return AuthenticationSession.create_for_user(admin_user)

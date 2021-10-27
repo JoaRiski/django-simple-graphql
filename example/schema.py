@@ -1,3 +1,5 @@
+from typing import Any
+
 import graphene
 from graphene import relay
 
@@ -15,5 +17,18 @@ class AdditionMutation(relay.ClientIDMutation):
     result = graphene.Int(required=True)
 
     @classmethod
-    def mutate_and_get_payload(cls, root, info, a: int, b: int):
+    def mutate_and_get_payload(cls, root: Any, info: Any, a: int, b: int):
         return AdditionMutation(result=a + b)
+
+
+@schema.graphql_mutation("get_user_info")
+class GetUserInfoMutation(relay.ClientIDMutation):
+    is_authenticated = graphene.Boolean(required=True)
+    username = graphene.String(required=True)
+
+    @classmethod
+    def mutate_and_get_payload(cls, root: Any, info: Any):
+        return GetUserInfoMutation(
+            is_authenticated=info.context.user.is_authenticated,
+            username=info.context.user.username,
+        )
