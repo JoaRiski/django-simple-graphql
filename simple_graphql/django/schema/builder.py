@@ -17,7 +17,8 @@ from graphql_relay import to_global_id
 
 from simple_graphql.django.config import extract_schema_config, get_model_graphql_meta
 from simple_graphql.django.schema.exceptions import (
-    AlreadyRegistered,
+    ModelAlreadyRegistered,
+    MutationAlreadyRegistered,
     SchemaAlreadyBuilt,
 )
 from simple_graphql.django.schema.node import build_node_schema
@@ -75,6 +76,7 @@ def attach_graphql_meta(
 
 class SchemaBuilder(Generic[ModelClass]):
     model_schemas: Optional[Dict[ModelClass, ModelSchema]]
+    extra_mutations: Dict[str, graphene.Field]
     registry: Dict[ModelClass, ModelSchemaConfig]
     _schema: Optional[graphene.Schema]
 
@@ -82,6 +84,25 @@ class SchemaBuilder(Generic[ModelClass]):
         self.model_schemas = None
         self._schema = None
         self.registry = dict()
+        self.extra_mutations = dict()
+
+    def register_mutation(self, name: str, handler: graphene.Field):
+        if name in self.extra_mutations:
+            raise MutationAlreadyRegistered(name)
+        self.extra_mutations[name] = handler
+
+    def graphql_mutation(
+        self, name: str
+    ) -> Callable[[Type[graphene.ClientIDMutation]], Type[graphene.ClientIDMutation]]:
+        def _wrapper(
+            mutation_cls: Type[graphene.ClientIDMutation],
+        ) -> Type[graphene.ClientIDMutation]:
+            if not issubclass(mutation_cls, graphene.ClientIDMutation):
+                raise ValueError("Wrapped class must subclass Model.")
+            self.register_mutation(name, mutation_cls.Field())
+            return mutation_cls
+
+        return _wrapper
 
     def register_model(
         self,
@@ -105,7 +126,7 @@ class SchemaBuilder(Generic[ModelClass]):
         )
 
         if model_cls in self.registry:
-            raise AlreadyRegistered(model_cls)
+            raise ModelAlreadyRegistered(model_cls)
         self.registry[model_cls] = merged_config
 
     def graphql_model(
@@ -142,6 +163,8 @@ class SchemaBuilder(Generic[ModelClass]):
         for schema in self.build_schemas().values():
             for name, field in schema.mutation_fields.items():
                 yield name, field
+        for name, field in self.extra_mutations.items():
+            yield name, field
 
     def build_mutation(self) -> Optional[Type[graphene.ObjectType]]:
         result = build_object_type("Mutation", self.mutation_fields_iter())

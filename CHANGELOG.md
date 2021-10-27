@@ -3,6 +3,8 @@
 ## Unreleased
 
 - Added GlobalIDInput graphene scalar.
+- Added Schema.register_mutation method for registering mutations.
+- Added Schema.graphql_mutation decorator for registering mutations.
 
 ## 0.2.0
 

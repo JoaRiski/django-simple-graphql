@@ -17,6 +17,19 @@ class _Schema(LazyObject):
         self.__dict__["builder"] = builder
         super().__init__()
 
+    def register_mutation(
+        self,
+        name: str,
+        handler: graphene.Field,
+    ) -> None:
+        self.builder.register_mutation(name, handler)
+
+    def graphql_mutation(
+        self,
+        name: str,
+    ) -> Callable[[Type[graphene.ClientIDMutation]], Type[graphene.ClientIDMutation]]:
+        return self.builder.graphql_mutation(name)
+
     def register_model(
         self,
         model_cls: ModelClass,
@@ -52,11 +65,24 @@ class SchemaType(graphene.Schema):
     def __init__(self):
         ...
 
+    def register_mutation(
+        self,
+        name: str,
+        handler: graphene.Field,
+    ) -> None:
+        ...
+
+    def graphql_mutation(
+        self,
+        name: str,
+    ) -> Callable[[Type[graphene.ClientIDMutation]], Type[graphene.ClientIDMutation]]:
+        ...
+
     def register_model(
         self,
         model_cls: ModelClass,
         config: Optional[ModelConfig] = None,
-    ):
+    ) -> None:
         ...
 
     def graphql_model(
