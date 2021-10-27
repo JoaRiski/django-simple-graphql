@@ -1,0 +1,6 @@
+- GlobalIDInput
+  - Enforce data type to be string & add a test case for the check
+  - Convert from Scalar to a Field
+  - Make serialization possible
+  - Validate the correct type of an object ID is passed in, preventing passing in IDs of invalid models
+  - Automatically query the model instance instead of just returning the ID.
