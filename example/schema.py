@@ -3,6 +3,7 @@ from typing import Any
 import graphene
 from graphene import relay
 
+from simple_graphql.auth.mutations import LoginMutation
 from simple_graphql.django import Schema
 
 schema = Schema()
@@ -32,3 +33,6 @@ class GetUserInfoMutation(relay.ClientIDMutation):
             is_authenticated=info.context.user.is_authenticated,
             username=info.context.user.username,
         )
+
+
+schema.register_mutation("login", LoginMutation.Field())

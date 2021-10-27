@@ -9,6 +9,7 @@
   - GraphQL middleware which can be used to authenticate queries based on the
     HTTP authorization header.
   - Token model for maintaining authorized sessions.
+  - Default login mutation implementation which is easy to take into use.
 
 ## 0.2.0
 

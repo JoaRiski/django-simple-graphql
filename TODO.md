@@ -11,7 +11,8 @@
   - Allow setting authentication requirements on a schema level
   - Improve type hints (remove use of `Any`)
   - Token model Django admin
-  - Easy to import default mutation for signing in
+  - Authorization rules for queries (make it possible to make the GraphQL API require auth)
+  - Middleware for disabling introspection
 - General
   - Either get rid of the `simple_graphql.django` module entirely or move the
     `simple_graphql.auth` module under it. Currently undoable due to recursive
