@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added GlobalIDInput graphene scalar.
+
+## 0.2.0
+
 - Removed global schema builder instance
 - Removed global decorator for model registering to GraphQL schema
 - Removed global function for model registering to GraphQL schema
