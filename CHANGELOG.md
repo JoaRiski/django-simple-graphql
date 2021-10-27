@@ -5,6 +5,11 @@
 - Added GlobalIDInput graphene scalar.
 - Added Schema.register_mutation method for registering mutations.
 - Added Schema.graphql_mutation decorator for registering mutations.
+- Added `simple_graphql.auth` Django app with the following features:
+  - GraphQL middleware which can be used to authenticate queries based on the
+    HTTP authorization header.
+  - Token model for maintaining authorized sessions.
+  - Default login mutation implementation which is easy to take into use.
 
 ## 0.2.0
 

@@ -13,6 +13,7 @@ class GraphQLClient:
         op_name=None,
         input_data=None,
         variables=None,
+        authorization=None,
     ):
         body = {"query": query}
         if op_name:
@@ -24,8 +25,14 @@ class GraphQLClient:
                 body["variables"]["input"] = input_data
             else:
                 body["variables"] = {"input": input_data}
+        headers = dict()
+        if authorization:
+            headers["HTTP_AUTHORIZATION"] = authorization
         resp = self.client.post(
-            self.GRAPHQL_URL, json.dumps(body), content_type="application/json"
+            self.GRAPHQL_URL,
+            json.dumps(body),
+            content_type="application/json",
+            **headers,
         )
         return resp
 
