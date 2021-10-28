@@ -17,3 +17,5 @@
   - Either get rid of the `simple_graphql.django` module entirely or move the
     `simple_graphql.auth` module under it. Currently undoable due to recursive
     imports.
+  - Remove the hack used for toggling introspection disabling middleware during
+    test runs and replace it with something better.

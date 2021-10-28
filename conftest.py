@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Callable
 
 import pytest
 from django.test.client import Client
@@ -40,3 +40,11 @@ def gclient(client: Client) -> GraphQLClient:
 @pytest.fixture
 def session(admin_user: Any) -> AuthenticationSession:
     return AuthenticationSession.create_for_user(admin_user)
+
+
+@pytest.fixture
+def disable_introspection_block(settings: Any) -> Callable[[bool], None]:
+    def toggle(val: bool):
+        settings.TEST_DISABLE_INTROSPECTION_BLOCK = val
+
+    return toggle
