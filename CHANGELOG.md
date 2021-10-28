@@ -12,6 +12,8 @@
   - Default login mutation implementation which is easy to take into use.
 - Added `require_login` model configuration, which will require all queries of
   that model to be authenticated.
+- Added `DisableIntrospectionMiddleware` which can be used to disallow
+  introspection queries.
 
 ## 0.2.0
 

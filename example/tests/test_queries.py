@@ -1,4 +1,5 @@
 from textwrap import dedent
+from typing import Callable
 
 import pytest
 
@@ -8,11 +9,22 @@ from example.test_utils.introspection import get_introspection_query
 from simple_graphql.auth.models import AuthenticationSession
 
 
-def test_introspection(gclient: GraphQLClient) -> None:
+@pytest.mark.parametrize("allowed", (False, True))
+def test_introspection(
+    disable_introspection_block: Callable[[bool], None],
+    gclient: GraphQLClient,
+    allowed: bool,
+) -> None:
+    disable_introspection_block(allowed)
     query = get_introspection_query()
     response = gclient.query(query)
     assert response.status_code == 200
-    gclient.assert_response_has_no_errors(response)
+    if allowed:
+        gclient.assert_response_has_no_errors(response)
+    else:
+        gclient.assert_response_has_error_message(
+            response, "Introspection is not allowed"
+        )
 
 
 @pytest.mark.django_db

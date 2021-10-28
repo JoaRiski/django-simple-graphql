@@ -34,6 +34,7 @@ GRAPHENE = {
     "SCHEMA": "example.schema.schema",
     "MIDDLEWARE": [
         "simple_graphql.auth.middleware.AuthMiddleware",
+        "simple_graphql.django.middleware.DisableIntrospectionMiddleware",
     ],
 }
 ROOT_URLCONF = "example.urls"
