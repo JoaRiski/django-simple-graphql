@@ -8,9 +8,11 @@ from django.utils.translation import gettext_lazy as _
 
 from simple_graphql.auth.exceptions import AuthenticationException
 
+AUTH_HEADER = "HTTP_AUTHORIZATION"
 
-def get_authorization_header(request: HttpRequest):
-    auth = request.META.get("HTTP_AUTHORIZATION", b"")
+
+def get_authorization_header(request: HttpRequest) -> bytes:
+    auth = request.META.get(AUTH_HEADER, b"")
     # Ensure Django test client is uniform with RFC5987
     if isinstance(auth, str):
         auth = auth.encode("iso-8859-1")
