@@ -1,11 +1,11 @@
 from typing import Dict, Optional, Type
 
 import graphene
-from graphene import relay
 from graphene.utils.str_converters import to_snake_case
 from graphene_django import DjangoObjectType
 
 from simple_graphql.django.fields import DjangoAutoConnectionField
+from simple_graphql.django.fields.node import DjangoAutoNode
 from simple_graphql.django.types import ModelClass, ModelSchemaConfig
 
 
@@ -31,6 +31,6 @@ def build_query_fields(
 ) -> Dict[str, graphene.Field]:
     query_name = to_snake_case(model_cls.__name__)
     return {
-        f"get_{query_name}": relay.Node.Field(node_cls),
+        f"get_{query_name}": DjangoAutoNode.Field(node_cls),
         f"list_{query_name}": DjangoAutoConnectionField(node_cls=node_cls),
     }

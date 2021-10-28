@@ -38,7 +38,7 @@ def build_node_extra_meta(
     _ordering_options = ordering_options
 
     class ExtraMeta:
-        search_fields = args.search_fields or []
+        config = args
         ordering_options = _ordering_options
 
     return ExtraMeta

@@ -16,11 +16,6 @@ INSTALLED_APPS = [
     "example",
 ]
 
-MIDDLEWARE = [
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-]
-
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 STATIC_URL = "/static/"
@@ -38,7 +33,7 @@ TEMPLATES = [
 GRAPHENE = {
     "SCHEMA": "example.schema.schema",
     "MIDDLEWARE": [
-        "simple_graphql.auth.middleware.auth_middleware",
+        "simple_graphql.auth.middleware.AuthMiddleware",
     ],
 }
 ROOT_URLCONF = "example.urls"

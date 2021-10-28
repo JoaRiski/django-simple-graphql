@@ -10,6 +10,8 @@
     HTTP authorization header.
   - Token model for maintaining authorized sessions.
   - Default login mutation implementation which is easy to take into use.
+- Added `require_login` model configuration, which will require all queries of
+  that model to be authenticated.
 
 ## 0.2.0
 

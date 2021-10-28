@@ -43,3 +43,14 @@ class Person(models.Model):
         exclude_fields = ["secret"]
         search_fields = ["first_name", "last_name", "email"]
         ordering_fields = ["first_name", "last_name", "email"]
+
+
+@schema.graphql_model()
+class Secret(models.Model):
+    graphql_id: str
+    graphql_node_name: str
+
+    data = models.TextField()
+
+    class GraphQL:
+        require_login = True

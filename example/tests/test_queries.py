@@ -2,9 +2,10 @@ from textwrap import dedent
 
 import pytest
 
-from example.models import Organization, Person
+from example.models import Organization, Person, Secret
 from example.test_utils.client import GraphQLClient
 from example.test_utils.introspection import get_introspection_query
+from simple_graphql.auth.models import AuthenticationSession
 
 
 def test_introspection(gclient: GraphQLClient) -> None:
@@ -148,3 +149,56 @@ def test_query_order_by(gclient: GraphQLClient):
         org_a.graphql_id,
         org_b.graphql_id,
     ]
+
+
+@pytest.mark.django_db
+def test_query_login_required(
+    secret: Secret, session: AuthenticationSession, gclient: GraphQLClient
+):
+    get_query = dedent(
+        f"""
+        {{
+            getSecret(id: "{secret.graphql_id}") {{
+                __typename
+                id
+                data
+            }}
+        }}
+        """
+    )
+    list_query = dedent(
+        """
+        {
+            listSecret {
+                edges {
+                    node {
+                        __typename
+                        id
+                        data
+                    }
+                }
+            }
+        }
+        """
+    )
+
+    for query in (get_query, list_query):
+        response = gclient.query(query)
+        assert response.status_code == 200
+        gclient.assert_response_has_error_message(response, "Unauthorized")
+
+    expected = {
+        "__typename": "Secret",
+        "data": secret.data,
+        "id": secret.graphql_id,
+    }
+    for query, is_list in ((get_query, False), (list_query, True)):
+        response = gclient.query(query, authorization=f"Token {session.key}")
+        assert response.status_code == 200
+        gclient.assert_response_has_no_errors(response)
+        if is_list:
+            gclient.assert_first_result_matches_expected(
+                response, {"edges": [{"node": expected}]}
+            )
+        else:
+            gclient.assert_first_result_matches_expected(response, expected)

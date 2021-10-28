@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 from django.test.client import Client
 
-from example.models import Organization, Person
+from example.models import Organization, Person, Secret
 from example.test_utils.client import GraphQLClient
 from simple_graphql.auth.models import AuthenticationSession
 
@@ -25,6 +25,11 @@ def person(organization: Organization) -> Person:
         secret="hunter2",
         organization=organization,
     )
+
+
+@pytest.fixture
+def secret() -> Secret:
+    return Secret.objects.create(data="hunter2")
 
 
 @pytest.fixture
