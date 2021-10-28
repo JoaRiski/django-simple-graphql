@@ -16,6 +16,7 @@ class ModelSchemaConfig:
     search_fields: Optional[List[str]] = None
     ordering_fields: Optional[List[str]] = None
     default_ordering: Optional[str] = None
+    require_login: Optional[bool] = None
 
     @classmethod
     def get_defaults(cls) -> "ModelSchemaConfig":

@@ -11,6 +11,8 @@ def test_schema_building() -> None:
         "listPerson",
         "getUser",
         "listUser",
+        "getSecret",
+        "listSecret",
     )
 
     query = schema.get_query_type()
