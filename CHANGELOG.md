@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Nothing
+
+## 0.4.0
+
 - Added Schema.register_query method for registering queries
 - Added Schema.graphql_query decorator for registering queries
 - Improved logging of schema building errors
