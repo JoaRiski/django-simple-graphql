@@ -1,3 +1,4 @@
+import traceback
 from typing import (
     Any,
     Callable,
@@ -19,6 +20,7 @@ from simple_graphql.django.config import extract_schema_config, get_model_graphq
 from simple_graphql.django.schema.exceptions import (
     ModelAlreadyRegistered,
     MutationAlreadyRegistered,
+    QueryAlreadyRegistered,
     SchemaAlreadyBuilt,
 )
 from simple_graphql.django.schema.node import build_node_schema
@@ -49,7 +51,7 @@ def build_model_schema(model_cls: ModelClass, args: ModelSchemaConfig) -> ModelS
 
 
 def build_object_type(
-    name: str, field_map: Iterator[Tuple[str, graphene.Field]]
+    name: str, field_map: Iterator[Tuple[str, Union[graphene.Field, Callable]]]
 ) -> Type[graphene.ObjectType]:
     return cast(
         Type[graphene.ObjectType],
@@ -77,6 +79,7 @@ def attach_graphql_meta(
 class SchemaBuilder(Generic[ModelClass]):
     model_schemas: Optional[Dict[ModelClass, ModelSchema]]
     extra_mutations: Dict[str, graphene.Field]
+    extra_queries: Dict[str, Tuple[graphene.Field, Callable]]
     registry: Dict[ModelClass, ModelSchemaConfig]
     _schema: Optional[graphene.Schema]
 
@@ -85,6 +88,27 @@ class SchemaBuilder(Generic[ModelClass]):
         self._schema = None
         self.registry = dict()
         self.extra_mutations = dict()
+        self.extra_queries = dict()
+
+    def register_query(self, name: str, handler: graphene.Field, resolver: Callable):
+        if name in self.extra_queries:
+            raise QueryAlreadyRegistered(name)
+        self.extra_queries[name] = (handler, resolver)
+
+    def graphql_query(
+        self, name: str
+    ) -> Callable[[Type[graphene.ObjectType]], Type[graphene.ObjectType]]:
+        def _wrapper(query_cls: Type[graphene.ObjectType]) -> Type[graphene.ObjectType]:
+            if not issubclass(query_cls, graphene.ObjectType):
+                raise ValueError("Wrapped class must subclass graphene.ObjectType.")
+            self.register_query(
+                name,
+                graphene.Field(query_cls, required=True),
+                lambda *args, **kwargs: query_cls(),
+            )
+            return query_cls
+
+        return _wrapper
 
     def register_mutation(self, name: str, handler: graphene.Field):
         if name in self.extra_mutations:
@@ -98,7 +122,9 @@ class SchemaBuilder(Generic[ModelClass]):
             mutation_cls: Type[graphene.ClientIDMutation],
         ) -> Type[graphene.ClientIDMutation]:
             if not issubclass(mutation_cls, graphene.ClientIDMutation):
-                raise ValueError("Wrapped class must subclass Model.")
+                raise ValueError(
+                    "Wrapped class must subclass graphene.ClientIDMutation."
+                )
             self.register_mutation(name, mutation_cls.Field())
             return mutation_cls
 
@@ -151,10 +177,15 @@ class SchemaBuilder(Generic[ModelClass]):
         self.model_schemas = model_schemas
         return model_schemas
 
-    def query_fields_iter(self) -> Iterator[Tuple[str, graphene.Field]]:
+    def query_fields_iter(
+        self,
+    ) -> Iterator[Tuple[str, Union[graphene.Field, Callable]]]:
         for schema in self.build_schemas().values():
             for name, field in schema.query_fields.items():
                 yield name, field
+        for name, (field, resolver) in self.extra_queries.items():
+            yield name, field
+            yield f"resolve_{name}", resolver
 
     def build_query(self) -> Type[graphene.ObjectType]:
         return build_object_type("Query", self.query_fields_iter())
@@ -180,9 +211,15 @@ class SchemaBuilder(Generic[ModelClass]):
         return result if result._meta.fields else None
 
     def build_schema(self) -> graphene.Schema:
-        # noinspection PyTypeChecker
-        return graphene.Schema(
-            query=self.build_query(),
-            mutation=self.build_mutation(),
-            subscription=self.build_subscription(),
-        )
+        try:
+            # noinspection PyTypeChecker
+            return graphene.Schema(
+                query=self.build_query(),
+                mutation=self.build_mutation(),
+                subscription=self.build_subscription(),
+            )
+        except Exception as e:
+            # TODO: Figure out what is eating the exception so we don't have to
+            # do this logging
+            print(traceback.format_exc())
+            raise e

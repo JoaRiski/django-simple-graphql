@@ -19,3 +19,9 @@
     imports.
   - Remove the hack used for toggling introspection disabling middleware during
     test runs and replace it with something better.
+  - Lazy schema references to avoid circular imports when defining queries & mutations
+  - Figure out what is eating error messages occurring during model build
+  - Add support for defining field options (e.g. required) when registering queries
+  - Add support for defining custom resolver when registering queries
+  - Ensure custom queries don't overlap auto-generated queries
+  - Add tests ensuring registering conflict checks work

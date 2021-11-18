@@ -51,17 +51,27 @@ class GraphQLClient:
         errors = json.dumps(content["errors"])
         assert message in errors, f"{message} not found in {errors}"
 
-    def get_single_query_result(self, response):
+    def _get_data(self, response):
         content = json.loads(response.content)
-        data = content["data"]
+        return content["data"]
+
+    def get_single_query_result(self, response):
+        data = self._get_data(response)
         return data[next(iter(data.keys()))]
+
+    def assert_response_matches_expected(self, response, expected):
+        result = self._get_data(response)
+        self._assert_result_matches_expected(result, expected)
 
     def assert_first_result_matches_expected(self, response, expected):
         result = self.get_single_query_result(response)
-        assert len(expected) == len(result), f"{len(expected)} == {len(result)}"
+        self._assert_result_matches_expected(result, expected)
+
+    def _assert_result_matches_expected(self, received, expected):
+        assert len(expected) == len(received), f"{len(expected)} == {len(received)}"
         for key, value in expected.items():
-            assert key in result, f"{result}"
-            assert result[key] == value, f"{result[key]} == {value}"
+            assert key in received, f"{received}"
+            assert received[key] == value, f"{received[key]} == {value}"
 
     def ensure_set(self, data):
         multiple = hasattr(data, "__iter__") and not isinstance(

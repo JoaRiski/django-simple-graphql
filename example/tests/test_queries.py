@@ -214,3 +214,34 @@ def test_query_login_required(
             )
         else:
             gclient.assert_first_result_matches_expected(response, expected)
+
+
+def test_query_manually_registered(gclient: GraphQLClient):
+    query = dedent(
+        """
+        query {
+          math {
+            add(a: 5, b: 2)
+            substract(a: 8, b: 4)
+          }
+          echo {
+            ping(input: "ping")
+          }
+        }
+        """
+    )
+    response = gclient.query(query)
+    assert response.status_code == 200
+    gclient.assert_response_has_no_errors(response)
+    gclient.assert_response_matches_expected(
+        response,
+        {
+            "math": {
+                "add": 7,
+                "substract": 4,
+            },
+            "echo": {
+                "ping": "pong",
+            },
+        },
+    )

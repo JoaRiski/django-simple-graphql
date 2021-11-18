@@ -17,6 +17,20 @@ class _Schema(LazyObject):
         self.__dict__["builder"] = builder
         super().__init__()
 
+    def register_query(
+        self,
+        name: str,
+        handler: graphene.Field,
+        resolver: Callable,
+    ) -> None:
+        self.builder.register_query(name, handler, resolver)
+
+    def graphql_query(
+        self,
+        name: str,
+    ) -> Callable[[Type[graphene.ObjectType]], Type[graphene.ObjectType]]:
+        return self.builder.graphql_query(name)
+
     def register_mutation(
         self,
         name: str,
@@ -63,6 +77,20 @@ class _Schema(LazyObject):
 # noinspection PyMissingConstructor
 class SchemaType(graphene.Schema):
     def __init__(self):
+        ...
+
+    def register_query(
+        self,
+        name: str,
+        handler: graphene.Field,
+        resolver: Callable,
+    ) -> None:
+        ...
+
+    def graphql_query(
+        self,
+        name: str,
+    ) -> Callable[[Type[graphene.ObjectType]], Type[graphene.ObjectType]]:
         ...
 
     def register_mutation(

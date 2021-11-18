@@ -37,4 +37,5 @@ GRAPHENE = {
         "simple_graphql.django.middleware.DisableIntrospectionMiddleware",
     ],
 }
+TEST_DISABLE_INTROSPECTION_BLOCK = True
 ROOT_URLCONF = "example.urls"
