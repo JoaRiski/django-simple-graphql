@@ -2,8 +2,9 @@ from textwrap import dedent
 from typing import Callable
 
 import pytest
+from django.contrib.auth.models import User
 
-from example.models import Organization, Person, Secret
+from example.models import Organization, Person, Secret, SuperuserOnlyModel
 from example.test_utils.client import GraphQLClient
 from example.test_utils.introspection import get_introspection_query
 from simple_graphql.auth.models import AuthenticationSession
@@ -245,3 +246,59 @@ def test_query_manually_registered(gclient: GraphQLClient):
             },
         },
     )
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("is_superuser", (False, True))
+def test_superuser_only_query(
+    is_superuser: bool, admin_user: User, gclient: GraphQLClient
+) -> None:
+    admin_user.is_superuser = is_superuser
+    admin_user.save()
+    session = AuthenticationSession.create_for_user(admin_user)
+    som = SuperuserOnlyModel.objects.create(data="test")
+    get_query = dedent(
+        f"""
+        {{
+            getSuperuserOnlyModel(id: "{som.graphql_id}") {{
+                __typename
+                id
+                data
+            }}
+        }}
+        """
+    )
+    list_query = dedent(
+        """
+        {
+            listSuperuserOnlyModel {
+                edges {
+                    node {
+                        __typename
+                        id
+                        data
+                    }
+                }
+            }
+        }
+        """
+    )
+
+    expected = {
+        "__typename": "SuperuserOnlyModel",
+        "data": som.data,
+        "id": som.graphql_id,
+    }
+    for query, is_list in ((get_query, False), (list_query, True)):
+        response = gclient.query(query, authorization=f"Token {session.key}")
+        assert response.status_code == 200
+        gclient.assert_response_has_no_errors(response)
+        if is_superuser:
+            if is_list:
+                gclient.assert_first_result_matches_expected(
+                    response, {"edges": [{"node": expected}]}
+                )
+            else:
+                gclient.assert_first_result_matches_expected(response, expected)
+        else:
+            gclient.assert_query_result_is_empty(response)

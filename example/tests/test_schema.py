@@ -13,6 +13,8 @@ def test_schema_building() -> None:
         "listUser",
         "getSecret",
         "listSecret",
+        "getSuperuserOnlyModel",
+        "listSuperuserOnlyModel",
         "echo",
         "math",
     )

@@ -1,8 +1,8 @@
 from dataclasses import asdict, dataclass
-from typing import Dict, List, Optional, Type, TypeVar, Union
+from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union
 
 import graphene
-from django.db.models import Model
+from django.db.models import Model, QuerySet
 from graphene_django import DjangoObjectType
 
 ModelClass = TypeVar("ModelClass", bound=Type[Model])
@@ -17,6 +17,7 @@ class ModelSchemaConfig:
     ordering_fields: Optional[List[str]] = None
     default_ordering: Optional[str] = None
     require_login: Optional[bool] = None
+    get_queryset: Optional[Callable[[QuerySet, Any], QuerySet]] = None
 
     @classmethod
     def get_defaults(cls) -> "ModelSchemaConfig":
@@ -25,7 +26,10 @@ class ModelSchemaConfig:
     @classmethod
     def to_dict(cls, instance: Optional["ModelSchemaConfig"]):
         if instance:
-            return asdict(instance)
+            result = asdict(instance)
+            if instance.get_queryset:
+                result["get_queryset"] = instance.get_queryset
+            return result
         return {}
 
 

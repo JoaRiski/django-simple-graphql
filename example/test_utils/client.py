@@ -120,7 +120,7 @@ class GraphQLClient:
 
     def assert_query_result_is_empty(self, response):
         data = self.get_single_query_result(response)
-        if data:
+        if data and "edges" in data:
             assert len(data["edges"]) == 0
         else:
             assert data is None

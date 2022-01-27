@@ -1,5 +1,8 @@
+from typing import Any
+
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models import QuerySet
 
 from example.schema import schema
 from simple_graphql.django import ModelSchemaConfig
@@ -54,3 +57,18 @@ class Secret(models.Model):
 
     class GraphQL:
         require_login = True
+
+
+@schema.graphql_model()
+class SuperuserOnlyModel(models.Model):
+    graphql_id: str
+    graphql_node_name: str
+
+    data = models.TextField()
+
+    class GraphQL:
+        @staticmethod
+        def get_queryset(queryset: QuerySet["SuperuserOnlyModel"], info: Any):
+            if info.context.user.is_superuser:
+                return queryset
+            return queryset.none()

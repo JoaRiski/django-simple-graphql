@@ -220,6 +220,12 @@ class Person(models.Model):
         default_ordering = ["first_name"]
         search_fields = ["first_name", "last_name"]
         filters = ["parent"]
+
+        @staticmethod
+        def get_queryset(queryset: QuerySet["Person"], info: Any):
+            if info.context.user.is_superuser:
+                return queryset
+            return queryset.none()
 ```
 
 #### Parameter configuration (with a class)

@@ -62,6 +62,8 @@ def build_node_get_queryset(
     def get_queryset(
         cls: DjangoObjectType, queryset: QuerySet[ModelInstance], info: QueryInfo
     ) -> QuerySet[ModelInstance]:
+        if args.get_queryset:
+            queryset = args.get_queryset(queryset, info)
         # TODO: Check if this is a valid way to handle related managers.
         #       Related managers have no "query" attribute, but should still be
         #       handled somehow most likely.
