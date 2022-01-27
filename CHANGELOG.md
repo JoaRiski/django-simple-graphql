@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Nothing
+
+## 0.5.0
+
 - Added support for custom `get_queryset` function on model GraphQL configs,
   enabling features such as permission based query result filtering and
   select related's.

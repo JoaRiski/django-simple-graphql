@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-simple-graphql"
-version = "0.4.0"
+version = "0.5.0"
 description = "A stupid simple GraphQL setup for Django"
 authors = ["Joa Riski <joa.riski@riskidev.fi>"]
 readme = "README.md"
