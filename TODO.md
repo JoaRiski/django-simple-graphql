@@ -25,3 +25,5 @@
   - Add support for defining custom resolver when registering queries
   - Ensure custom queries don't overlap auto-generated queries
   - Add tests ensuring registering conflict checks work
+  - Fix applying of default_ordering and add tests ensuring it works as expected
+  - Change default_ordering to accept a list as well as a string

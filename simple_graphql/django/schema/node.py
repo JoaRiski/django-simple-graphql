@@ -69,6 +69,10 @@ def build_node_get_queryset(
         #       handled somehow most likely.
         if not hasattr(queryset, "query"):
             return queryset
+
+        # TODO: The idea here is to ensure param based queryset ordering isn't
+        #       overwritten with default ordering, but currently it seems like
+        #       the check isn't working as intended. Fix it.
         is_ordered = bool(queryset.query.order_by)
         if is_ordered:
             return queryset
